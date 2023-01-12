@@ -5,8 +5,46 @@ import hashlib
 import sqlite3
 
 DB_NAME = "data/links.sqlite"
-HOSTNAME = "0.0.0.0"  # important to make DOCKER port forwarding works
+HOST = "0.0.0.0"
+HOST_TO_ACCESS = "localhost"
 PORT = 4321
+
+
+class DBManager:
+    @staticmethod
+    def get_original_link(short_url):
+        db = sqlite3.connect(DB_NAME)
+        cdb = db.cursor()
+
+        cdb.execute(f"SELECT original FROM links WHERE short = '{short_url}';")
+        original_url = cdb.fetchone()
+
+        cdb.close()
+        db.close()
+        return original_url
+
+    @staticmethod
+    def is_link_exist(short_url):
+        db = sqlite3.connect(DB_NAME)
+        cdb = db.cursor()
+
+        cdb.execute(f"SELECT * FROM links WHERE short = '{short_url}';")
+        exist = cdb.fetchall()
+
+        cdb.close()
+        db.close()
+        return exist
+
+    @staticmethod
+    def add_link(original_url, short_url):
+        db = sqlite3.connect(DB_NAME)
+        cdb = db.cursor()
+
+        cdb.execute(f"INSERT INTO links VALUES ('{short_url}', '{original_url}', 0);")
+        db.commit()
+
+        cdb.close()
+        db.close()
 
 
 class Server(BaseHTTPRequestHandler):
@@ -18,14 +56,10 @@ class Server(BaseHTTPRequestHandler):
     def do_GET(self):
         self._set_response(200)
 
-        if self.path != "/":
+        if self.path != "/":  # short-link redirect request
             short_url = self.path[1:]
-            db = sqlite3.connect(DB_NAME)
-            cdb = db.cursor()
 
-            cdb.execute(f"SELECT original FROM links WHERE short = '{short_url}';")
-            original_url = cdb.fetchone()
-            db.close()
+            original_url = DBManager.get_original_link(short_url)
 
             if original_url:
                 original_url = original_url[0]  # get original link
@@ -34,8 +68,16 @@ class Server(BaseHTTPRequestHandler):
 
             else:
                 logging.info(f"Can't redirect {short_url} -> ?")
-                self.wfile.write(bytes(f"<h1>'{short_url}' this shortlink doesn't exist</h1>", "utf-8"))
+                self.wfile.write(bytes(f"<h1>'{short_url}' this short-link doesn't exist</h1>", "utf-8"))
 
+        else:  # index request (no path specified)
+            self.wfile.write(bytes("<h1>Welcome to yonka's short-linker!</h1>", "utf-8"))
+            self.wfile.write(bytes("<h2>You can use python request to create short-link:</h2>", "utf-8"))
+
+            self.wfile.write(bytes(f"<h3>x = requests.post('http://HOST_TO_ACCESS:{PORT}', json={{'url': 'https://long.pasten.com/veryveryverylongurl'}})<br>"
+                                   "print(x.text)</h3>", "utf-8"))
+
+            self.wfile.write(bytes(f"<h2>If you already got a short-link, you can access it via: http://HOST_TO_ACCESS:{PORT}/short_url</h2>", "utf-8"))
 
     def do_POST(self):
         content_length = int(self.headers['Content-Length'])  # Gets the size of data
@@ -44,30 +86,24 @@ class Server(BaseHTTPRequestHandler):
         original_url = json.loads(post_data.decode("utf-8"))['url']
         short_url = short_link(original_url.encode())
 
-        db = sqlite3.connect(DB_NAME)
-        cdb = db.cursor()
-
         # check if shortlink isn't already exist
-        cdb.execute(f"SELECT * FROM links WHERE short = '{short_url}';")
+        already_exist = DBManager.is_link_exist(short_url)
 
-        if cdb.fetchall():
+        if already_exist:
             logging.info(f"Already exist '{original_url}' : '{short_url}'")
 
-            db.close()
         else:
-            cdb.execute(f"INSERT INTO links VALUES ('{short_url}', '{original_url}', 0);")
-            db.commit()
-            db.close()
+            DBManager.add_link(original_url, short_url)
 
             logging.info(f"Successfully saved! '{original_url}' : '{short_url}'")
 
         self._set_response(200)
-        self.wfile.write(f"Short link: localhost:{PORT}/{short_url}".encode("utf-8"))
+        self.wfile.write(f"Short link: HOST_TO_ACCESS:{PORT}/{short_url}".encode("utf-8"))
 
 
 def run(server_class=HTTPServer, handler_class=Server):
     logging.basicConfig(level=logging.INFO)
-    httpd = server_class((HOSTNAME, PORT), handler_class)
+    httpd = server_class((HOST, PORT), handler_class)
 
     logging.info('Starting httpd...\n')
 
