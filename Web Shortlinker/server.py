@@ -62,7 +62,7 @@ class Server(BaseHTTPRequestHandler):
             logging.info(f"Successfully saved! '{original_url}' : '{short_url}'")
 
         self._set_response(200)
-        self.wfile.write(f"Short link: {HOSTNAME}:{PORT}/{short_url}".encode("utf-8"))
+        self.wfile.write(f"Short link: localhost:{PORT}/{short_url}".encode("utf-8"))
 
 
 def run(server_class=HTTPServer, handler_class=Server):
