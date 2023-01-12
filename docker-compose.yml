@@ -1,0 +1,20 @@
+version: "3"
+
+services:
+  web-slinker:
+    container_name: slinker
+    image: web-slink
+    ports:
+      - "4321:4321"
+    volumes:
+      - sdb:/app/data
+
+  db-slinker:
+    image: db-slink
+    volumes:
+      - sdb:/app/data
+    command: ./start-init.sh
+
+volumes:
+  sdb:
+    name: sdb
