@@ -3,7 +3,7 @@ version: "3"
 services:
 
   web-slinker:
-    container_name: slinker
+    container_name: web-slink
     image: web-slink
     ports:
       - "4321:4321"
@@ -13,12 +13,16 @@ services:
       - cache-slinker
 
   db-slinker:
+    container_name: db-slink
     image: db-slink
     volumes:
       - sdb:/app/data
     command: ./start-init.sh
+    depends_on:
+      - cache-slinker
 
   cache-slinker:
+    container_name: cache-slink
     image: redis
     ports:
       - "6379:6379"
