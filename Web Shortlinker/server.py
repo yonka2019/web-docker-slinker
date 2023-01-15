@@ -23,16 +23,15 @@ class Server(BaseHTTPRequestHandler):  # Web server
         if self.path != "/":  # short-link redirect request
             short_url = self.path[1:]
 
-            original_url = DBManager.get_original_link(short_url)
+            original_url = SlinkManager.get_original_link(short_url)
 
             if original_url:
-                original_url = original_url[0]  # get original link
-                logging.info(f"Successfully redirected '{short_url}' -> '{original_url}'")
                 self.wfile.write(bytes(f"<meta http-equiv=\"Refresh\" content=\"0; url=\'{original_url}\'\" />",
                                        "utf-8"))  # redirect
+                logging.info(f" [SERVER] Successfully redirected '{short_url}' -> '{original_url}'")
 
             else:
-                logging.info(f"Can't redirect {short_url} -> ?")
+                logging.info(f" [SERVER] Can't redirect {short_url} -> ?")
                 self.wfile.write(bytes(f"<h1>'{short_url}' this short-link doesn't exist</h1>", "utf-8"))
 
         else:  # index request (no path specified)
@@ -45,11 +44,13 @@ class Server(BaseHTTPRequestHandler):  # Web server
                 "print(x.text)</h3>", "utf-8"))
 
             self.wfile.write(bytes(
-                f"<h2>If you already got a short-link, "
+                "<h2>If you already got a short-link, "
                 f"you can access it via: http://{HOST_WEB_ACCESS}:{WEB_PORT}/short_url</h2>",
                 "utf-8"))
 
     def do_POST(self):
+        self._set_response(200)
+
         content_length = int(self.headers['Content-Length'])  # Gets the size of data
         post_data = self.rfile.read(content_length)  # Gets the data itself
 
@@ -57,25 +58,20 @@ class Server(BaseHTTPRequestHandler):  # Web server
         short_url = short_link(original_url.encode())
 
         # check if shortlink isn't already exist
-        already_exist = DBManager.is_link_exist(short_url)
+        already_exist = SlinkManager.is_link_exist(short_url)
 
-        if already_exist:
-            logging.info(f"Already exist '{original_url}' : '{short_url}'")
+        if not already_exist:
+            SlinkManager.add_link(short_url, original_url)
+            logging.info(f" [SERVER] Successfully saved! ['{original_url}' : '{short_url}']")
 
-        else:
-            DBManager.add_link(short_url, original_url)
-
-            logging.info(f"Successfully saved! '{original_url}' : '{short_url}'")
-
-        self._set_response(200)
-        self.wfile.write(f"Short link: {HOST_WEB_ACCESS}:{WEB_PORT}/{short_url}".encode("utf-8"))
+        self.wfile.write(f"Short link could be accessed on: {HOST_WEB_ACCESS}:{WEB_PORT}/{short_url}".encode("utf-8"))
 
 
 def run(server_class=HTTPServer, handler_class=Server):
     logging.basicConfig(level=logging.INFO)
     httpd = server_class((HOST, WEB_PORT), handler_class)
 
-    logging.info('Starting httpd...\n')
+    logging.info(f' [SERVER] Server started on: {HOST_WEB_ACCESS}:{WEB_PORT}')
 
     try:
         httpd.serve_forever()
@@ -83,7 +79,7 @@ def run(server_class=HTTPServer, handler_class=Server):
         pass
 
     httpd.server_close()
-    logging.info('Stopping httpd...\n')
+    logging.info(' [SERVER] Stopping server...\n')
 
 
 def short_link(long_link):

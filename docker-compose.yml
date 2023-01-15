@@ -9,7 +9,7 @@ services:
       - "4321:4321"
     volumes:
       - sdb:/app/data
-    depends_on:
+    depends_on:  # firstly build the cache container
       - cache-slinker
 
   db-slinker:
@@ -18,15 +18,18 @@ services:
     volumes:
       - sdb:/app/data
     command: ./start-init.sh
-    depends_on:
+    depends_on:  # firstly build the cache container
       - cache-slinker
 
   cache-slinker:
     container_name: cache-slink
     image: redis
     ports:
-      - "6379:6379"
+      - "6379:6379"  # redis default ports
+    environment:
+      - "REDIS_MAXMEMORY=100mb"  # max redis DB size - 100 MB
+      - "REDIS_MAXMEMORY_POLICY=volatile-lru"  #  remove the less recently used keys when the max memory limit is reached
 
 volumes:
-  sdb:
+  sdb:  # Shared database
     name: sdb

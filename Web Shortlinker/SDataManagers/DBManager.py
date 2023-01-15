@@ -10,7 +10,12 @@ class DBManager:  # Sqlite management
         cdb = db.cursor()
 
         cdb.execute(f"SELECT original_url FROM links WHERE short_url = '{short_url}';")
-        original_url = cdb.fetchone()
+        fetched = cdb.fetchone()
+
+        if fetched:
+            original_url = fetched[0]
+        else:
+            original_url = None
 
         cdb.close()
         db.close()
@@ -22,7 +27,12 @@ class DBManager:  # Sqlite management
         cdb = db.cursor()
 
         cdb.execute(f"SELECT * FROM links WHERE short_url = '{short_url}';")
-        link_exist = cdb.fetchall()
+        fetched = cdb.fetchall()
+
+        if fetched:
+            link_exist = fetched[0]
+        else:
+            link_exist = None
 
         cdb.close()
         db.close()
