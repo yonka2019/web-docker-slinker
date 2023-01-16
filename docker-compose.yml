@@ -1,16 +1,19 @@
 version: "3"
+# ! Super CMD script to build all images and auto-run this docker-compose O= !
+# Be in <D:\Python\MPlus_SLinker - Docker> path
+# Run this command:
+# cd "Web Shortlinker" & docker build -t web-slink . && cd .. & cd "Shared Database" & docker build -t db-slink . && cd .. & cd "Message Consumer" & docker build -t msg-c-slink . && cd .. & docker-compose up
 
 services:
   web-slinker:
     container_name: web-slink
     image: web-slink
     ports:
-      - "4321:4321"
-      - "465:465"  # for consumer.py (for SSL, send/receive mail)
+      - "4321:4321"  # HTTP Connection access
     volumes:
       - sdb:/app/data
     depends_on:  # wait until cache turned on, and RabbitMQ container response (FULLY turned on)
-      msg-slinker:
+      msg-p-slinker:
         condition: service_healthy
       cache-slinker:
         condition: service_started
@@ -37,17 +40,27 @@ services:
       - "REDIS_MAXMEMORY_POLICY=volatile-lru"  #  remove the less recently used keys when the max memory limit is reached
 
 
-  msg-slinker:
-    container_name: msg-slink
+  msg-p-slinker:  # message producer  [MESSAGE] <- PRODUCER
+    container_name: msg-p-slink
     image: rabbitmq:3-management
     ports:
       - "5672:5672"
-      - "15672:15672"
+      - "15672:15672"  # GUI Management
     healthcheck:
       test: rabbitmq-diagnostics -q ping
       interval: 10s
       timeout: 15s
       retries: 3
+
+
+  msg-c-slinker:  # message consumer  [MESSAGE] -> CONSUMER
+    container_name: msg-c-slink
+    image: msg-c-slink
+    ports:
+      - "465:465"  # for SSL, send/receive mail
+    depends_on:  # wait until web container (server) will be turned on
+      web-slinker:
+        condition: service_started
 
 
 volumes:

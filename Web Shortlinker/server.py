@@ -48,9 +48,11 @@ class Server(BaseHTTPRequestHandler):  # Web server
         short_url = create_short_link(original_url.encode())
 
         # check if shortlink isn't already exist
+        logging.info(" [SERVER] Checking if the given link isn't already exist..")
         already_exist = SlinkManager.is_link_exist(short_url)
 
         if not already_exist:
+            logging.info(f" [SERVER] Creating new short-link for: '{original_url}'")
             SlinkManager.add_link(short_url, original_url)
             logging.info(f" [SERVER] Successfully saved! ['{original_url}' : '{short_url}']")
 

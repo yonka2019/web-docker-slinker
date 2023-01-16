@@ -1,4 +1,4 @@
-requests  # for web image (web-slinker)
-# pysqlite for db image (db-slinker) [ALREADY INCLUDED IN PYTHON SINCE PYTHON 2.5]
-redis  # for cache image (cache-slinker)
-pika  # for msg image (msg-slinker)
+requests  # for web image (interact with web-slinker)
+# pysqlite for db image (interact with db-slinker) [ALREADY INCLUDED IN PYTHON SINCE PYTHON 2.5]
+redis  # for cache image (interact with cache-slinker)
+pika  # for msg image (msg-p-slinker)

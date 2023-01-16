@@ -1,7 +1,7 @@
 import pika
 import logging
 
-RABBITMQ_HOST = "msg-slink"
+RABBITMQ_HOST = "msg-p-slink"
 RABBITMQ_QUEUE = "new_link"
 
 
