@@ -6,6 +6,7 @@ sys.path.append('SDataManagers')  # python imports from /app (relative path is /
 
 from DBManager import DBManager
 from CacheManager import CacheManager
+from MsgManager import MsgManager
 
 
 class SlinkManager:  # Slink management (sqlite + cache + msg)
@@ -51,3 +52,4 @@ class SlinkManager:  # Slink management (sqlite + cache + msg)
     @staticmethod
     def add_link(short_url, original_url):
         DBManager.add_link(short_url, original_url)  # add in DB
+        MsgManager.publish_message(short_url, original_url)  # notify server admin (part3/2)

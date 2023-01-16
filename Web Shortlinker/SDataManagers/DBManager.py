@@ -9,7 +9,7 @@ class DBManager:  # Sqlite management
         db = sqlite3.connect(DB_NAME)
         cdb = db.cursor()
 
-        cdb.execute(f"SELECT original_url FROM links WHERE short_url = '{short_url}';")
+        cdb.execute(f"SELECT original_url FROM links WHERE short_url = ?", [short_url])
         fetched = cdb.fetchone()
 
         if fetched:
@@ -26,7 +26,7 @@ class DBManager:  # Sqlite management
         db = sqlite3.connect(DB_NAME)
         cdb = db.cursor()
 
-        cdb.execute(f"SELECT * FROM links WHERE short_url = '{short_url}';")
+        cdb.execute(f"SELECT * FROM links WHERE short_url = ?", [short_url])
         fetched = cdb.fetchall()
 
         if fetched:
@@ -43,7 +43,7 @@ class DBManager:  # Sqlite management
         db = sqlite3.connect(DB_NAME)
         cdb = db.cursor()
 
-        cdb.execute(f"INSERT INTO links VALUES ('{short_url}', '{original_url}');")
+        cdb.execute(f"INSERT INTO links VALUES (?, ?)", [short_url, original_url])
         db.commit()
 
         cdb.close()

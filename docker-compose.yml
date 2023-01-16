@@ -1,16 +1,20 @@
 version: "3"
 
 services:
-
   web-slinker:
     container_name: web-slink
     image: web-slink
     ports:
       - "4321:4321"
+      - "465:465"  # for consumer.py (for SSL, send/receive mail)
     volumes:
       - sdb:/app/data
-    depends_on:  # firstly build the cache container
-      - cache-slinker
+    depends_on:  # wait until cache turned on, and RabbitMQ container response (FULLY turned on)
+      msg-slinker:
+        condition: service_healthy
+      cache-slinker:
+        condition: service_started
+
 
   db-slinker:
     container_name: db-slink
@@ -18,8 +22,10 @@ services:
     volumes:
       - sdb:/app/data
     command: ./start-init.sh
-    depends_on:  # firstly build the cache container
-      - cache-slinker
+    depends_on:  # wait until cache turned on
+      cache-slinker:
+        condition: service_started
+
 
   cache-slinker:
     container_name: cache-slink
@@ -30,6 +36,20 @@ services:
       - "REDIS_MAXMEMORY=100mb"  # max redis DB size - 100 MB
       - "REDIS_MAXMEMORY_POLICY=volatile-lru"  #  remove the less recently used keys when the max memory limit is reached
 
+
+  msg-slinker:
+    container_name: msg-slink
+    image: rabbitmq:3-management
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    healthcheck:
+      test: rabbitmq-diagnostics -q ping
+      interval: 10s
+      timeout: 15s
+      retries: 3
+
+
 volumes:
-  sdb:  # Shared database
+  sdb:  # Shared database volume (for db-slinker)
     name: sdb

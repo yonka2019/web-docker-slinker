@@ -1,5 +1,16 @@
-import requests as requests
+import requests
 
-x = requests.post('http://127.0.0.1:4321',
-                  json={'url': 'https://long.pasten.com/veryveafafryverylongurl'})
-print(x.text)
+HOST = "127.0.0.1"
+PORT = "4321"
+
+
+def main():
+
+    x = requests.post(f'http://{HOST}:{PORT}',
+                      json={'url': 'https://long.pasten.cofm/veryveafafryverylongurl'})
+    print(x.text)
+
+
+if __name__ == '__main__':
+    main()
+
