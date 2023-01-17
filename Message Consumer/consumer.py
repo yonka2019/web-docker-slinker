@@ -62,7 +62,7 @@ Subject: SLink - New link notification
 
         server.login(SENDER_MAIL, SENDER_MAIL_PASSWORD)  # login smtp server
         server.sendmail(SENDER_MAIL, to_mail, mime_txt.encode())  # send mail thru smtp server
-        logging.info(f" [MSG-C] Message sent to {to_mail}")
+        logging.info(f" [MSG-C] Mail have been sent to {to_mail}")
 
 
 if __name__ == '__main__':

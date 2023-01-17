@@ -14,9 +14,11 @@ services:
       - sdb:/app/data
     depends_on:  # wait until cache turned on, and RabbitMQ container response (FULLY turned on)
       msg-p-slinker:
-        condition: service_healthy
+          condition: service_healthy  # wait until server fully up
       cache-slinker:
         condition: service_started
+      db-slinker:
+        condition: service_completed_successfully  # wait until db-slink run and done
 
 
   db-slinker:
@@ -24,7 +26,7 @@ services:
     image: db-slink
     volumes:
       - sdb:/app/data
-    command: ./start-init.sh
+    command: bash -c "dos2unix start-init.sh && ./start-init.sh"
     depends_on:  # wait until cache turned on
       cache-slinker:
         condition: service_started
@@ -47,7 +49,7 @@ services:
       - "5672:5672"
       - "15672:15672"  # GUI Management
     healthcheck:
-      test: rabbitmq-diagnostics -q ping
+      test: rabbitmq-diagnostics -q status  # ping not work
       interval: 10s
       timeout: 15s
       retries: 3

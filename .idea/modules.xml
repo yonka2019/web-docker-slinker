@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/MPlus_SLinker - Docker.iml" filepath="$PROJECT_DIR$/.idea/MPlus_SLinker - Docker.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/web-docker-slinker.iml" filepath="$PROJECT_DIR$/.idea/web-docker-slinker.iml" />
     </modules>
   </component>
 </project>
