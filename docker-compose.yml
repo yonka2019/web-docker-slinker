@@ -49,7 +49,7 @@ services:
       - "5672:5672"
       - "15672:15672"  # GUI Management
     healthcheck:
-      test: rabbitmq-diagnostics -q status  # ping not work
+      test: rabbitmq-diagnostics -q status  # ping command not always work properly
       interval: 10s
       timeout: 15s
       retries: 3

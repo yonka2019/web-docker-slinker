@@ -15,7 +15,7 @@ SENDER_NAME = "SLinker"
 SENDER_MAIL = "yonka2017y@gmail.com"
 
 # https://stackoverflow.com/questions/72478573/how-to-send-an-email-using-python-after-googles-policy-update-on-not-allowing-j
-SENDER_MAIL_PASSWORD = "recuqqptylrsseth"  # App password (need 2FA on to enable this option)
+SENDER_MAIL_PASSWORD = "?"  # App password (need 2FA on to enable this option)
 
 
 RECEIVER_NAME = "Admin"
