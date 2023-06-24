@@ -75,7 +75,7 @@ class Server(BaseHTTPRequestHandler):  # Web server
 
 def run(server_class=HTTPServer, handler_class=Server):
     logging.basicConfig(level=logging.INFO)
-    logging.getLogger('pika').setLevel(logging.CRITICAL)  # set pika (RabitMQ) logs only on critical mode
+    logging.getLogger('pika').setLevel(logging.CRITICAL)  # set pika (RabbitMQ) logs only on critical mode
 
     httpd = server_class((HOST, WEB_PORT), handler_class)
 
