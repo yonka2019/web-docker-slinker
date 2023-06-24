@@ -29,4 +29,4 @@ json={'url': 'https://thatscool/veryveryverylongurl'})
 - Message consumer container *[rabbitmq]* (**msg-c-slink**)
 
 # Preview
-![Screenshot preview](https://github.com/yonka2019/web-docker-slinker/tree/master/Screenshots/preview.png)
+![Screenshot preview](https://github.com/yonka2019/web-docker-slinker/blob/master/Screenshots/preview.png)
